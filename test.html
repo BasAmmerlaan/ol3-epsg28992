@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>OpenLayers 3 EPSG:28992</title>
+    <script src="ol/ol-debug.js"></script>
+    <script src="proj4js/proj4.js"></script>
+    <script src="epsg28992.js"></script>
+
+    <link rel="stylesheet" href="ol/ol.css">
+    <style>
+        body {
+            font-family: Verdana, Arial, sans-serif;
+        }
+        .success, .error {
+            font-weight: bold;
+        }
+        .success {
+            color: #198506;
+
+        }
+        .error {
+            color: #850002;
+        }
+    </style>
+    <script>
+        function showTestResult(element, passed, message) {
+            element.innerHTML = message;
+            element.className = passed ? 'success' : 'error';
+        }
+    </script>
+</head>
+<body>
+    <h1>Test: ol.proj.get('EPSG:28992') is defined</h1>
+    <div id="test1result"></div>
+
+    <script>
+        (function () {
+            var el = document.getElementById('test1result'),
+                proj = ol.proj.get('EPSG:28992');
+            showTestResult(el, !!proj, proj);
+        }());
+    </script>
+
+    <hr>
+
+    <h1>Test: loads GeoJSON features in EPSG:28992 and correctly adds them to an EPSG:3857 (default ol projection) map</h1>
+    The points should be in the centre of some Dutch cities
+    <div id="map1" style="width: 500px; height: 500px;"></div>
+    <script>
+        (function () {
+            var geojson = {
+                "type": "FeatureCollection",
+                "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::28992" } },
+                "features": [
+                    { "type": "Feature", "properties": { "id": 1 }, "geometry": { "type": "Point", "coordinates": [ 155012.43541667939, 463009.92187501013 ] } },
+                    { "type": "Feature", "properties": { "id": 2 }, "geometry": { "type": "Point", "coordinates": [ 121306.89996563741, 487368.65419151942 ] } },
+                    { "type": "Feature", "properties": { "id": 3 }, "geometry": { "type": "Point", "coordinates": [ 233440.49174666588, 582488.47928852937 ] } },
+                    { "type": "Feature", "properties": { "id": 4 }, "geometry": { "type": "Point", "coordinates": [ 176420.40210517944, 317991.3998521099 ] } },
+                    { "type": "Feature", "properties": { "id": 5 }, "geometry": { "type": "Point", "coordinates": [ 91831.52285224307, 437809.8145576425 ] } }
+                ]
+            };
+
+            var map = new ol.Map({
+                target: 'map1',
+                view: new ol.View({
+                    center: ol.proj.fromLonLat([5.387203508863084, 52.15517229965292]),
+                    zoom: 7
+                }),
+                layers: [
+                    new ol.layer.Tile({
+                        source: new ol.source.OSM()
+                    })
+                ]
+            });
+
+            var citiesSource = new ol.source.Vector({
+                features: new ol.format.GeoJSON().readFeatures(geojson, {
+                    dataProjection: 'EPSG:28992',
+                    featureProjection: 'EPSG:3857'
+                })
+            });
+
+            var citiesLayer = new ol.layer.Vector({
+                source: citiesSource
+            });
+
+            map.addLayer(citiesLayer);
+        }());
+    </script>
+
+    <hr>
+
+    <h1>Test: loads GeoJSON features in EPSG:4326 and correctly adds them to an EPSG:28992 map; loads a WMTS service in EPSG:28992</h1>
+    The points should be in the centre of some Dutch cities
+    <div id="map2" style="width: 500px; height: 500px;"></div>
+
+    <script>
+        (function () {
+            var geojson = {
+                "type": "FeatureCollection",
+                "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+                "features": [
+                    { "type": "Feature", "properties": { "id": 1 }, "geometry": { "type": "Point", "coordinates": [ 5.38738522294293, 52.155261477850139 ] } },
+                    { "type": "Feature", "properties": { "id": 2 }, "geometry": { "type": "Point", "coordinates": [ 4.892439966118339, 52.373158327151046 ] } },
+                    { "type": "Feature", "properties": { "id": 3 }, "geometry": { "type": "Point", "coordinates": [ 6.561675497706412, 53.223249123514684 ] } },
+                    { "type": "Feature", "properties": { "id": 4 }, "geometry": { "type": "Point", "coordinates": [ 5.691360392440076, 50.851355993607385 ] } },
+                    { "type": "Feature", "properties": { "id": 5 }, "geometry": { "type": "Point", "coordinates": [ 4.46886028248248, 51.925174283802697 ] } }
+                ]
+            };
+
+            var map = new ol.Map({
+                target: 'map2',
+                view: new ol.View({
+                    projection: 'EPSG:28992',
+                    center: [155000, 463000],
+                    zoom: 7
+                }),
+                layers: [
+                    new ol.layer.Tile({
+                        source: new ol.source.WMTS({
+                            url: 'https://geodata.nationaalgeoregister.nl/wmts/brtachtergrondkaart?',
+                            layer: 'brtachtergrondkaart',
+                            format: 'image/png',
+                            style: 'default',
+                            matrixSet: 'EPSG:28992',
+                            tileGrid: ol.tilegrid.EPSG28992
+                        })
+                    })
+                ]
+            });
+
+            var citiesSource = new ol.source.Vector({
+                        features: new ol.format.GeoJSON().readFeatures(geojson, {
+                            dataProjection: 'EPSG:4326',
+                            featureProjection: 'EPSG:28992'
+                        })
+                    }),
+                    citiesLayer = new ol.layer.Vector({
+                        source: citiesSource
+                    });
+
+            map.addLayer(citiesLayer);
+        }());
+    </script>
+</body>
+</html>

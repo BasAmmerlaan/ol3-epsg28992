@@ -1,8 +1,14 @@
 (function () {
-    var proj4 = ol.proj.proj4.get();
+    var proj4;
+
+    if (typeof ol.proj.proj4 !== 'undefined') {
+        proj4 = ol.proj.proj4.get();
+    } else {
+        proj4 = window['proj4'];
+    }
 
     if (typeof proj4 !== 'function')
-        throw new TypeError('The proj4js library is not loaded. See https://openlayers.org/en/latest/apidoc/ol.proj.html#.setProj4');
+        throw new ReferenceError('The proj4js library is not loaded. Make sure it is available on the global namespace.');
 
     var names = [
         'EPSG:28992',

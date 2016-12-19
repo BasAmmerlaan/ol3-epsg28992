@@ -1,6 +1,6 @@
 # ol3-epsg28992
 
-Adds support for the EPSG:28992 / RD New projection to Openlayers 3.
+Adds support for the EPSG:28992 / RD New projection to Openlayers 3. This plugin works for all versions of Openlayers 3.
 
 ## Usage
 
